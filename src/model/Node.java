@@ -7,7 +7,24 @@ public class Node {
     private Node next;
     private Node portal;
     private Node prev;
+    private boolean Rick;
+    private boolean Morty;
 
+    public boolean isRick() {
+        return Rick;
+    }
+
+    public void setRick(boolean rick) {
+        Rick = rick;
+    }
+
+    public boolean isMorty() {
+        return Morty;
+    }
+
+    public void setMorty(boolean morty) {
+        Morty = morty;
+    }
 
     public Node(int value){
         this.value = value;

@@ -53,18 +53,20 @@ public class Table {
         }
         if(num%colm == 0)
             System.out.print("\n");
-            if(actual.equals(r) && r.equals(m)){
-                System.out.print(" [B] "); //Both
-            } else if(actual.equals(m)){
-                System.out.print(" [M] "); //Only Morty
-            }else if(actual.equals(r)) {
-                System.out.print(" [R] "); //Only Rick
-            }else if(actual.isSeed()){
-                System.out.print(" [*] "); //Seeds
-            }else{
-                System.out.print(" [" + actual.getValue() + "] ");
+        if(actual.isRick() && actual.isMorty())
+            System.out.print(" [  B  ] "); //Both
+        else if(actual.isRick())
+            System.out.print(" [  R  ] ");//Only Morty
+        else if(actual.isMorty())
+            System.out.print(" [  M  ] "); //Only Rick
+        else if(actual.isSeed())
+                System.out.print(" [  *  ] "); //Seeds
+        else{
+            if(actual.getValue() < 10)
+                System.out.print(" [  0" + actual.getValue() + " ] ");
+            else
+                System.out.print(" [  " + actual.getValue() + "  ] ");
             }
-
         num++;
         print(actual.getNext(), t, colm, num);
     }
@@ -74,7 +76,7 @@ public class Table {
         int pos = getRandom(0, last.getValue());
         while(quantity!= num){
             Node s = search(pos);
-            if(!s.isSeed() && !s.equals(m) && !s.equals(r)){
+            if(!s.isSeed() && !s.isMorty() && !s.isRick()){
                 s.setSeed(true);
                 num++;
             }
@@ -90,7 +92,9 @@ public class Table {
             generatePositions();
         }else{
             r = search(rick);
+            r.setRick(true);
             m = search(morty);
+            m.setMorty(true);
         }
     }
 
@@ -111,10 +115,10 @@ public class Table {
 
     public void goForward(int dice, int turn){
         Node tmp = goForwardInt(dice, turn);
-        if(tmp.equals(r) && tmp.isSeed()){
+        if(tmp.isRick() && tmp.isSeed()){
             tmp.setSeed(false);
             rickSeeds += 1;
-        }else if(tmp.equals(m) && tmp.isSeed()){
+        }else if(tmp.isMorty() && tmp.isSeed()){
             tmp.setSeed(false);
             mortySeeds += 1;
         }
@@ -134,14 +138,22 @@ public class Table {
     }
 
     private Node goForwardInt(int dice, int turn){ //Intern
-        if(turn%2 == 0)
+        if(turn%2 == 0){
+            r.setRick(false);
             r = r.getNext();
-        else
+            if(dice==1)
+                r.setRick(true);
+            dice--;
+        }else{
+            m.setMorty(false);
             m = m.getNext();
-        dice--;
-        if(dice>0)
+            if(dice==1)
+                m.setMorty(true);
+            dice--;
+        }
+        if(dice>0){
             return goForwardInt(dice, turn);
-        else{
+        } else{
             if(turn%2 == 0)
                 return r;
             else
@@ -151,14 +163,13 @@ public class Table {
 
     public void goBackward(int dice, int turn){
         Node tmp = goBackwardInt(dice, turn);
-        if(tmp.equals(m) && tmp.isSeed()){
-            tmp.setSeed(false);
-            mortySeeds += 1;
-        }else if(tmp.equals(r) && tmp.isSeed()) {
+        if(tmp.isRick() && tmp.isSeed()){
             tmp.setSeed(false);
             rickSeeds += 1;
+        }else if(tmp.isMorty() && tmp.isSeed()){
+            tmp.setSeed(false);
+            mortySeeds += 1;
         }
-
         if(tmp.getPortal()!=null) {
             tmp = tmp.getPortal();
             if (tmp.isSeed()) {
@@ -175,21 +186,51 @@ public class Table {
     }
 
     public Node goBackwardInt(int dice, int turn){
-        if(turn%2 == 0)
-            this.r = r.getPrev();
-        else
-            this.m = m.getPrev();
-        dice++;
-        if(dice<0)
+        if(turn%2 == 0){
+            r.setRick(false);
+            r = r.getNext();
+            if(dice==1)
+                r.setRick(true);
+            dice--;
+        }else{
+            m.setMorty(false);
+            m = m.getNext();
+            if(dice==1)
+                m.setMorty(true);
+            dice--;
+        }
+        if(dice>0){
             return goBackwardInt(dice, turn);
-        else{
-            if(turn%2 == 1)
-                return this.m;
+        } else{
+            if(turn%2 == 0)
+                return r;
             else
-                return this.r;
+                return m;
         }
     }
 
+    /*
+    public void generatePortals(int nPortals, int colm, int rows){
+        Random genRandom=new Random((((colm*rows)-1)+1)+1);
+        for(int i=0;i<n*2;i++) {
+            int m=0;
+            do {
+            }while(prtls.contains(m));
+            prtls.add(m);
+        }
+        int j=0;
+        for(int i=0;i<n*2;i+=2) {
+            char ltr=(char) (65+j);
+            Node a=search(prtls.get(i));
+            Node b=search(prtls.get(i+1));
+            a.setPrtlLtr(ltr);
+            b.setPrtlLtr(ltr);
+            a.setPortal(b);
+            b.setPortal(a);
+            j++;
+        }
+    }
+     */
     public void printScores(){
             System.out.println("Rick's score:: " + rickSeeds);
             System.out.println("Morty's score:: " + mortySeeds);

@@ -19,7 +19,10 @@ public class Game {
 
         System.out.println("Enter the amount of seeds in the table:: ");
         int seeds = Integer.parseInt(br.readLine());
-        if(seeds <= columns * rows - 2)
+        if(seeds >= columns * rows - 2) {
+            System.out.println("The amount of seeds can't exeed the table size, try again:: ");
+            seeds = Integer.parseInt(br.readLine());
+        }
 
         System.out.println("Enter the amount of links:: ");
         int links = Integer.parseInt(br.readLine());
@@ -56,6 +59,7 @@ public class Game {
         else{
             list.generatePositions();
             list.generateSeed(seeds);
+           //list.generatePortals((links*2), colm, row);
             System.out.println("\nThe game has started!");
             menu(total, colm, 0);
         }
@@ -87,7 +91,8 @@ public class Game {
                     if (rps == 1) {
                          list.goForward(diceValue, turn);
                     }else if(rps == 2){
-                        diceValue = -diceValue;
+                        diceValue = total - diceValue;
+                        //diceValue = -diceValue;
                         list.goBackward(diceValue, turn);
                     }
                     turn+=1;
